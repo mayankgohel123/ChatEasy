@@ -43,6 +43,41 @@ socket.on('chat history', (messages) => {
 function displayMessage(sender, text, type) {
   const messageElement = document.createElement('div');
   messageElement.classList.add('message', type);
+
+  // Create the delete button
+  const deleteButton = document.createElement('button');
+  deleteButton.classList.add('delete-btn');
+  deleteButton.textContent = 'Delete';
+  deleteButton.style.display = 'none'; // Initially hidden
+
+  // Add the delete button to the message element
   messageElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  messageElement.appendChild(deleteButton);
+
+  // Handle long press to show delete button
+  let pressTimer;
+  messageElement.addEventListener('mousedown', () => {
+    pressTimer = setTimeout(() => {
+      deleteButton.style.display = 'block'; // Show the delete button after long press
+    }, 1000); // Show delete button after 1 second of hold
+  });
+
+  messageElement.addEventListener('mouseup', () => {
+    clearTimeout(pressTimer); // Clear the long press timer
+  });
+
+  messageElement.addEventListener('mouseleave', () => {
+    clearTimeout(pressTimer); // Clear the long press timer if the user moves the cursor away
+  });
+
+  // Handle delete button click
+  deleteButton.addEventListener('click', () => {
+    messageElement.remove(); // Remove the message from the DOM (for testing purposes)
+    
+    // Optionally, emit a delete event to remove the message from the server (implement as needed)
+    socket.emit('delete message', { group, message: text });
+  });
+
   chatBox.appendChild(messageElement);
+  chatBox.scrollTop = chatBox.scrollHeight; // Ensure the chat box scrolls to the bottom after adding a new message
 }
