@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatEasy - Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="chat">
+            <h2>Chat Room</h2>
+            <div id="chatBox" class="chat-box"></div>
+            <input type="text" id="messageInput" placeholder="Type a message" />
+            <button id="sendButton">Send</button>
+            <br />
+            <input type="text" id="groupNameInput" placeholder="Enter group name" />
+            <button id="joinButton">Join Group</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

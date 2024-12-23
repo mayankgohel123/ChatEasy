@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatEasy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="screen">
+    <div class="login-container">
+      <h1>ChatEasy</h1>
+      <p>Join a group and start chatting with friends!</p>
+      <input id="usernameInput" type="text" placeholder="Username" required />
+      <input id="groupInput" type="text" placeholder="Group Name" required />
+      <button id="joinGroupButton">Join Group</button>
+    </div>
+  </div>
+
+  <!-- Chat Screen -->
+  <div id="chatScreen" class="screen" style="display: none;">
+    <header class="chat-header">
+      <h2 id="groupTitle"></h2>
+      <button id="leaveGroupButton" class="leave-btn">Leave</button>
+    </header>
+    <div id="chatBox" class="chat-box"></div>
+    <div class="input-container">
+      <textarea id="messageInput" placeholder="Type a message..."></textarea>
+      <button id="sendButton" class="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
