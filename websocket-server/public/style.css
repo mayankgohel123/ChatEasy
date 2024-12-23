@@ -179,6 +179,23 @@ body {
   margin-top: 5px;
 }
 
+/* Delete Button */
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 5px;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none; /* Initially hidden */
+}
+
 .delete-btn:hover {
   background: #a71d2a;
 }
