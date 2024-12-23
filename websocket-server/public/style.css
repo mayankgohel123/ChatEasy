@@ -188,12 +188,12 @@ body {
   font-size: 0.8rem;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 5px;
   position: absolute;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
   display: none; /* Initially hidden */
+  z-index: 15; /* Ensure it is above other elements */
 }
 
 .delete-btn:hover {
@@ -276,5 +276,10 @@ body {
   .input-container .send-btn {
     width: 15%;
     height: 40px;
+  }
+
+  .delete-btn {
+    font-size: 0.7rem;
+    padding: 4px;
   }
 }
