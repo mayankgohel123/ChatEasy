@@ -1,58 +1,46 @@
+// Import necessary modules
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
+const socketIo = require('socket.io');
+const cors = require('cors');
 
+// Initialize the app and the HTTP server
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 
-// Store messages in memory (for now) with group name as the key
-let chatHistory = {};
+// Set up socket.io
+const io = socketIo(server);
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Middleware setup (if needed)
+app.use(cors());
+app.use(express.json());
 
+// Example API route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.send('Hello, welcome to the ChatEasy server!');
 });
 
+// Set up socket.io for real-time communication
 io.on('connection', (socket) => {
   console.log('A user connected');
 
-  // Listen for users joining a group
-  socket.on('join group', ({ username, group }) => {
-    socket.join(group);
-    console.log(`${username} joined group: ${group}`);
-
-    // Send the chat history for that group to the user joining
-    if (chatHistory[group]) {
-      socket.emit('chat history', chatHistory[group]);
-    }
+  // Handle incoming messages
+  socket.on('message', (msg) => {
+    console.log('Received message:', msg);
+    io.emit('message', msg); // Broadcast message to all connected clients
   });
 
-  // Listen for chat messages
-  socket.on('chat message', (data) => {
-    const { group, username, message } = data;
-
-    // If chat history doesn't exist for the group, initialize it
-    if (!chatHistory[group]) {
-      chatHistory[group] = [];
-    }
-
-    // Add the new message to the chat history
-    chatHistory[group].push({ sender: username, text: message });
-
-    // Emit the message to all users in the group (including the sender)
-    io.to(group).emit('chat message', { sender: username, text: message });
-  });
-
-  // Listen for disconnections
+  // Handle disconnection
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
 });
 
-server.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
+// Use the PORT environment variable (Render provides this for you)
+const port = process.env.PORT || 10000; // Default to 10000 if no PORT is set
+const host = '0.0.0.0'; // Bind to all network interfaces
+
+// Start the server
+server.listen(port, host, () => {
+  console.log(`Server is running on http://${host}:${port}`);
 });

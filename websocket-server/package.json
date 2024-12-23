@@ -1,25 +1,18 @@
 {
   "name": "chateasy",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "websocket-server/server.js",  
   "scripts": {
-    "start": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node websocket-server/server.js"  
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "mongoose": "^8.9.2",
+    "express": "^4.21.2",  
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "ws": "^8.18.0"
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
-  }
-    }
-
+  },
+  "license": "ISC",
+  "description": "ChatEasy app"
+}
