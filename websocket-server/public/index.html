@@ -44,6 +44,9 @@
         sessionStorage.setItem('username', username);
         sessionStorage.setItem('group', group);
 
+        // Emit the 'join group' event to the server before redirecting
+        socket.emit('join group', { username, group });
+
         // Redirect to chat page
         window.location.href = '/chat'; // Redirecting to /chat
       } else {

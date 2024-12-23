@@ -167,6 +167,22 @@ body {
   color: #333;
 }
 
+/* Delete Button */
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.delete-btn:hover {
+  background: #a71d2a;
+}
+
 /* Input Container */
 .input-container {
   display: flex;

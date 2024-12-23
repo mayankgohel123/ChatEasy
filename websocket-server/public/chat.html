@@ -45,6 +45,33 @@
           const messageElement = document.createElement('div');
           messageElement.classList.add('message', message.sender === username ? 'sent' : 'received');
           messageElement.textContent = `${message.sender}: ${message.text}`;
+
+          // Create and append delete button
+          const deleteButton = document.createElement('button');
+          deleteButton.classList.add('delete-btn');
+          deleteButton.textContent = 'Delete';
+          messageElement.appendChild(deleteButton);
+
+          // Show delete button on long press
+          let pressTimer;
+          messageElement.addEventListener('mousedown', function () {
+            pressTimer = setTimeout(() => {
+              deleteButton.style.display = 'block'; // Show delete button
+            }, 1000); // Trigger after 1 second
+          });
+
+          messageElement.addEventListener('mouseup', function () {
+            clearTimeout(pressTimer); // Cancel if pressed for less than 1 second
+          });
+
+          // Handle message deletion
+          deleteButton.addEventListener('click', function () {
+            socket.emit('delete message', { group, message });
+
+            // Remove message from the chat box
+            messageElement.remove();
+          });
+
           chatBox.appendChild(messageElement);
         });
       });
@@ -55,6 +82,33 @@
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', data.sender === username ? 'sent' : 'received');
         messageElement.textContent = `${data.sender}: ${data.text}`;
+
+        // Create and append delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-btn');
+        deleteButton.textContent = 'Delete';
+        messageElement.appendChild(deleteButton);
+
+        // Show delete button on long press
+        let pressTimer;
+        messageElement.addEventListener('mousedown', function () {
+          pressTimer = setTimeout(() => {
+            deleteButton.style.display = 'block'; // Show delete button
+          }, 1000); // Trigger after 1 second
+        });
+
+        messageElement.addEventListener('mouseup', function () {
+          clearTimeout(pressTimer); // Cancel if pressed for less than 1 second
+        });
+
+        // Handle message deletion
+        deleteButton.addEventListener('click', function () {
+          socket.emit('delete message', { group, message: data });
+
+          // Remove message from the chat box
+          messageElement.remove();
+        });
+
         chatBox.appendChild(messageElement);
       });
 

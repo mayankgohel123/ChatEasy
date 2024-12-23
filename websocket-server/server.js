@@ -80,6 +80,23 @@ io.on('connection', (socket) => {
     io.to(group).emit('chat message', { sender: username, text: message });
   });
 
+  // Handle delete message event
+  socket.on('delete message', (data) => {
+    const { group, messageIndex } = data;
+
+    // Check if the group exists and if the message index is valid
+    if (groups[group] && groups[group][messageIndex]) {
+      // Remove the message from the group's chat history
+      groups[group].splice(messageIndex, 1);
+
+      // Save updated chat history to file
+      saveChatHistory(groups);
+
+      // Emit the updated chat history to the group
+      io.to(group).emit('chat history updated', groups[group]);
+    }
+  });
+
   // Handle disconnect event
   socket.on('disconnect', () => {
     console.log('User disconnected');
