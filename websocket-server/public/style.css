@@ -42,13 +42,27 @@ body {
   color: #555;
 }
 
-.login-container input {
+.login-container .input-group {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
+  margin-bottom: 20px;
+  text-align: left; /* Align the label to the left */
+}
+
+.login-container .input-group label {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+  text-align: left; /* Align label text to the left */
+}
+
+.login-container .input-group input {
+  width: 100%;
+  padding: 12px;
   font-size: 1rem;
   border: 1px solid #ddd;
   border-radius: 5px;
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
 .login-container button {
@@ -75,6 +89,7 @@ body {
   overflow: hidden; /* Prevent scrolling of the entire screen */
 }
 
+/* Chat Header */
 .chat-header {
   display: flex;
   justify-content: space-between;
@@ -85,25 +100,42 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+  box-sizing: border-box;
 }
 
 .chat-header h2 {
-  font-size: 1rem;
+  font-size: 1.2rem;
   margin: 0;
+  text-align: left; /* Ensure proper text alignment */
+  font-weight: 600;
+  flex-grow: 1; /* Allow group name to take available space */
 }
 
 .leave-btn {
   background: #dc3545;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 8px 12px;
   border-radius: 5px;
   font-size: 0.9rem;
   cursor: pointer;
+  display: inline-block;
 }
 
 .leave-btn:hover {
   background: #a71d2a;
+}
+
+/* Ensuring that group name and button stay aligned properly */
+.chat-header .group-name-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.chat-header .leave-btn {
+  margin-left: 10px; /* Space between group name and leave button */
 }
 
 /* Chat Box */
