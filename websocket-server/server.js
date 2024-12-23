@@ -1,68 +1,48 @@
 const express = require('express');
 const path = require('path');
-const app = express();
 const http = require('http');
 const socketIo = require('socket.io');
-const port = process.env.PORT || 3000;  // Use PORT provided by Render or fallback to 3000 locally
 
-// Create HTTP server and attach Socket.IO
+const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-let groups = {}; // Store messages per group
-
-// Middleware to serve static files (HTML, CSS, JS, etc.)
+// Serve static files (like HTML, CSS, and JS files)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Basic route to serve the index.html file
+// Route for the home page (login)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serving the index.html file
+  res.sendFile(path.join(__dirname, 'public', 'index.html')); // Change the path if needed
 });
 
-// Listen for user joining a group
+// Route for the chat page
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat.html')); // Change the path if needed
+});
+
+// Handle socket events for the chat app
 io.on('connection', (socket) => {
-  console.log('A user connected');
+  console.log('a user connected');
 
-  // Handle join group event
+  // Handle joining a group
   socket.on('join group', (data) => {
-    const { username, group } = data;
-
-    // Add user to the group
-    socket.join(group);
-
-    // Send the chat history of the group
-    if (groups[group]) {
-      socket.emit('chat history', groups[group]);
-    } else {
-      socket.emit('chat history', []); // No history if group doesn't exist
-    }
-
-    console.log(`${username} joined group ${group}`);
+    socket.join(data.group);
+    console.log(`${data.username} joined group: ${data.group}`);
   });
 
-  // Listen for new messages from users
+  // Handle receiving and sending messages
   socket.on('chat message', (data) => {
-    const { group, username, message } = data;
-
-    // Store the new message in the group
-    if (!groups[group]) {
-      groups[group] = [];  // Create group if it doesn't exist
-    }
-
-    // Add the new message to the group's chat history
-    groups[group].push({ sender: username, text: message });
-
-    // Emit the new message to the group
-    io.to(group).emit('chat message', { sender: username, text: message });
+    io.to(data.group).emit('chat message', { sender: data.username, text: data.message });
   });
 
-  // Handle user disconnection
+  // Handle disconnect event
   socket.on('disconnect', () => {
-    console.log('A user disconnected');
+    console.log('user disconnected');
   });
 });
 
 // Start the server
-server.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
