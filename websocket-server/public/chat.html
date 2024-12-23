@@ -1,25 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatEasy - Chat</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Room</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="chat">
-            <h2>Chat Room</h2>
-            <div id="chatBox" class="chat-box"></div>
-            <input type="text" id="messageInput" placeholder="Type a message" />
-            <button id="sendButton">Send</button>
-            <br />
-            <input type="text" id="groupNameInput" placeholder="Enter group name" />
-            <button id="joinButton">Join Group</button>
-        </div>
+  <!-- Chat Screen -->
+  <div id="chatScreen">
+    <div class="chat-header">
+      <h2>Group: <span id="groupName"></span></h2>
+      <button class="leave-btn" onclick="leaveGroup()">Leave</button>
     </div>
+    
+    <div id="chatBox" class="chat-box"></div>
+    
+    <div class="input-container">
+      <textarea id="messageInput" placeholder="Type your message..." required></textarea>
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Get username and group from sessionStorage
+    const username = sessionStorage.getItem('username');
+    const group = sessionStorage.getItem('group');
+
+    if (username && group) {
+      document.getElementById('groupName').textContent = group; // Display the group name
+
+      // Join the group once the user reaches the chat page
+      socket.emit('join group', { username, group });
+
+      // Listen for the chat history and display it
+      socket.on('chat history', (messages) => {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = ''; // Clear chat box before loading history
+        
+        messages.forEach(message => {
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('message', message.sender === username ? 'sent' : 'received');
+          messageElement.textContent = `${message.sender}: ${message.text}`;
+          chatBox.appendChild(messageElement);
+        });
+      });
+
+      // Listen for new chat messages
+      socket.on('chat message', (data) => {
+        const chatBox = document.getElementById('chatBox');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', data.sender === username ? 'sent' : 'received');
+        messageElement.textContent = `${data.sender}: ${data.text}`;
+        chatBox.appendChild(messageElement);
+      });
+
+      // Handle sending messages
+      function sendMessage() {
+        const message = document.getElementById('messageInput').value;
+
+        if (message) {
+          // Emit chat message to the server
+          socket.emit('chat message', { group, username, message });
+
+          // Clear the input field after sending the message
+          document.getElementById('messageInput').value = '';
+        }
+      }
+
+      // Leave the group and redirect to home page
+      function leaveGroup() {
+        sessionStorage.removeItem('username');
+        sessionStorage.removeItem('group');
+        window.location.href = '/'; // Redirect to the home page
+      }
+    } else {
+      alert('Please join a group first!');
+      window.location.href = '/'; // Redirect to the home page if no group is found
+    }
+  </script>
 </body>
 </html>

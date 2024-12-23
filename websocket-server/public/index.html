@@ -3,35 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatEasy</title>
+  <title>Join a Group</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- Login Screen -->
-  <div id="loginScreen" class="screen">
+  <div id="loginScreen">
     <div class="login-container">
-      <h1>ChatEasy</h1>
-      <p>Join a group and start chatting with friends!</p>
-      <input id="usernameInput" type="text" placeholder="Username" required />
-      <input id="groupInput" type="text" placeholder="Group Name" required />
-      <button id="joinGroupButton">Join Group</button>
-    </div>
-  </div>
-
-  <!-- Chat Screen -->
-  <div id="chatScreen" class="screen" style="display: none;">
-    <header class="chat-header">
-      <h2 id="groupTitle"></h2>
-      <button id="leaveGroupButton" class="leave-btn">Leave</button>
-    </header>
-    <div id="chatBox" class="chat-box"></div>
-    <div class="input-container">
-      <textarea id="messageInput" placeholder="Type a message..."></textarea>
-      <button id="sendButton" class="send-btn">Send</button>
+      <h1>Join a Group</h1>
+      <form id="joinForm">
+        <div class="input-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="input-group">
+          <label for="group">Group Name:</label>
+          <input type="text" id="group" name="group" required>
+        </div>
+        
+        <button type="submit">Join Group</button>
+      </form>
     </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="app.js"></script>
+  <script>
+    const socket = io();
+
+    // Handle form submission
+    document.getElementById('joinForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const group = document.getElementById('group').value;
+
+      // Validate the inputs
+      if (username && group) {
+        // Save the username and group to sessionStorage to be used on the chat page
+        sessionStorage.setItem('username', username);
+        sessionStorage.setItem('group', group);
+
+        // Redirect to chat page
+        window.location.href = '/chat'; // Redirecting to /chat
+      } else {
+        alert('Please enter both username and group name');
+      }
+    });
+  </script>
 </body>
 </html>
