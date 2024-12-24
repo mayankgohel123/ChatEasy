@@ -184,7 +184,7 @@ body {
 }
 
 .delete-btn.show {
-  display: block; /* Display the delete button when needed */
+  display: block; /* Show the delete button */
 }
 
 .delete-btn:hover {

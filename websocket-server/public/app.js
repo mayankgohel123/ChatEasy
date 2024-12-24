@@ -54,21 +54,27 @@ function displayMessage(sender, text, type) {
   messageElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
   messageElement.appendChild(deleteButton);
 
-  // Handle long press to show delete button
+  // Handle long press to show delete button (works for both mouse and touch)
   let pressTimer;
-  messageElement.addEventListener('mousedown', () => {
-    pressTimer = setTimeout(() => {
-      deleteButton.style.display = 'block'; // Show the delete button after long press
-    }, 1000); // Show delete button after 1 second of hold
-  });
+  
+  const showDeleteButton = () => {
+    deleteButton.style.display = 'block'; // Show the delete button after long press
+  };
 
-  messageElement.addEventListener('mouseup', () => {
+  const clearPressTimer = () => {
     clearTimeout(pressTimer); // Clear the long press timer
-  });
+  };
 
-  messageElement.addEventListener('mouseleave', () => {
-    clearTimeout(pressTimer); // Clear the long press timer if the user moves the cursor away
+  // Add event listeners for mouse and touch events
+  messageElement.addEventListener('mousedown', () => {
+    pressTimer = setTimeout(showDeleteButton, 1000); // Show delete button after 1 second hold
   });
+  messageElement.addEventListener('mouseup', clearPressTimer);
+  messageElement.addEventListener('mouseleave', clearPressTimer);
+  messageElement.addEventListener('touchstart', () => {
+    pressTimer = setTimeout(showDeleteButton, 1000); // Show delete button after 1 second hold
+  });
+  messageElement.addEventListener('touchend', clearPressTimer);
 
   // Handle delete button click
   deleteButton.addEventListener('click', () => {
