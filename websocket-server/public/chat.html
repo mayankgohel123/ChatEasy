@@ -11,6 +11,7 @@
   <div id="chatScreen">
     <div class="chat-header">
       <h2>Group: <span id="groupName"></span></h2>
+      <h3>Welcome, <span id="userName"></span></h3>
       <button class="leave-btn" onclick="leaveGroup()">Leave</button>
     </div>
     
@@ -26,12 +27,14 @@
   <script>
     const socket = io();
 
-    // Get username and group from sessionStorage
-    const username = sessionStorage.getItem('username');
-    const group = sessionStorage.getItem('group');
+    // Get username and group from localStorage
+    const username = localStorage.getItem('username');
+    const group = localStorage.getItem('currentGroup');
 
+    // Check if user is logged in and a group is joined
     if (username && group) {
       document.getElementById('groupName').textContent = group; // Display the group name
+      document.getElementById('userName').textContent = username; // Display the username
 
       // Join the group once the user reaches the chat page
       socket.emit('join group', { username, group });
@@ -45,6 +48,9 @@
           const messageElement = document.createElement('div');
           messageElement.classList.add('message', message.sender === username ? 'sent' : 'received');
           messageElement.textContent = `${message.sender}: ${message.text}`;
+
+          // Add a unique messageId (if not present) to reference for deletion
+          messageElement.setAttribute('data-message-id', message.id); // Assuming 'id' is unique
 
           // Create and append delete button
           const deleteButton = document.createElement('button');
@@ -66,7 +72,8 @@
 
           // Handle message deletion
           deleteButton.addEventListener('click', function () {
-            socket.emit('delete message', { group, message });
+            const messageId = messageElement.getAttribute('data-message-id');
+            socket.emit('delete message', { group, messageId }); // Use messageId for deletion
 
             // Remove message from the chat box
             messageElement.remove();
@@ -78,10 +85,14 @@
 
       // Listen for new chat messages
       socket.on('chat message', (data) => {
+        console.log('Received message:', data); // Debugging log
         const chatBox = document.getElementById('chatBox');
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', data.sender === username ? 'sent' : 'received');
         messageElement.textContent = `${data.sender}: ${data.text}`;
+
+        // Add a unique messageId (if not present) to reference for deletion
+        messageElement.setAttribute('data-message-id', data.id); // Assuming 'id' is unique
 
         // Create and append delete button
         const deleteButton = document.createElement('button');
@@ -103,7 +114,8 @@
 
         // Handle message deletion
         deleteButton.addEventListener('click', function () {
-          socket.emit('delete message', { group, message: data });
+          const messageId = messageElement.getAttribute('data-message-id');
+          socket.emit('delete message', { group, messageId }); // Use messageId for deletion
 
           // Remove message from the chat box
           messageElement.remove();
@@ -127,13 +139,14 @@
 
       // Leave the group and redirect to home page
       function leaveGroup() {
-        sessionStorage.removeItem('username');
-        sessionStorage.removeItem('group');
+        localStorage.removeItem('username');
+        localStorage.removeItem('currentGroup');
         window.location.href = '/'; // Redirect to the home page
       }
     } else {
+      // Redirect to join group page if user is not in a group
       alert('Please join a group first!');
-      window.location.href = '/'; // Redirect to the home page if no group is found
+      window.location.href = 'join-group.html';
     }
   </script>
 </body>

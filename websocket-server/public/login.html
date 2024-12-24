@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .error {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 <body>
   <!-- Login Screen -->
@@ -16,17 +23,49 @@
           <label for="username">Username:</label>
           <input type="text" id="username" name="username" placeholder="Enter Your Username" required>
         </div>
-        
+
         <div class="input-group">
           <label for="password">Password:</label>
           <input type="password" id="password" name="password" placeholder="Enter Your Password" required>
+          <div id="passwordError" class="error" style="display: none;"></div> <!-- Error message container -->
         </div>
-        
+
         <button type="submit">Login</button>
       </form>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    // Handle form submission
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const passwordError = document.getElementById('passwordError'); // Error message element
+
+      // Validate the inputs
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const user = users.find(user => user.username === username);
+
+      if (user) {
+        if (user.password === password) {
+          // Clear error message if successful
+          passwordError.style.display = 'none';
+          alert(`Welcome ${user.name}!`);
+          // Redirect to the group join page after login
+          window.location.href = 'join-group.html'; // Redirect to join group page
+        } else {
+          // Show error message for incorrect password
+          passwordError.style.display = 'block';
+          passwordError.textContent = 'Incorrect password. Please try again.';
+        }
+      } else {
+        // Show error message for invalid username
+        passwordError.style.display = 'block';
+        passwordError.textContent = 'Invalid username. Please check and try again.';
+      }
+    });
+  </script>
 </body>
 </html>
