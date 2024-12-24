@@ -155,16 +155,23 @@ body {
   padding: 8px 10px;
   border-radius: 8px;
   word-wrap: break-word;
+  position: relative;
 }
 
 .chat-box .sent {
   background: #007bff;
   color: white;
+  align-self: flex-end;
+  border-top-right-radius: 0;
+  text-align: right;
 }
 
 .chat-box .received {
   background: #e9ecef;
   color: #333;
+  align-self: flex-start;
+  border-top-left-radius: 0;
+  text-align: left;
 }
 
 /* Delete Button */
