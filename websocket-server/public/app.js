@@ -1,89 +1,56 @@
-// Initialize socket.io connection
 const socket = io();
 
-// Get elements
-const messageInput = document.getElementById('messageInput');
-const messageForm = document.getElementById('messageForm');
-const chatBox = document.getElementById('chatBox');
-const username = localStorage.getItem('username'); // Assume the username is stored in localStorage
-const group = localStorage.getItem('group'); // Assume the group name is stored in localStorage
+// Handle Sign-Up Form Submission
+document.getElementById('signUpForm').addEventListener('submit', function (e) {
+  e.preventDefault();
 
-// Listen for form submission to send a message
-messageForm.addEventListener('submit', (event) => {
-  event.preventDefault(); // Prevent the form from reloading the page
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const displayName = document.getElementById('displayName').value;
 
-  const message = messageInput.value;
-  
-  if (message.trim()) {
-    // Emit the message to the server
-    socket.emit('chat message', { group, username, message });
-    
-    // Clear the message input field
-    messageInput.value = '';
+  if (username && password && displayName) {
+    fetch('/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password, displayName }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = '/login'; // Redirect to login page after successful sign-up
+      } else {
+        alert(data.message); // Show error message if username already exists
+      }
+    });
   }
 });
 
-// Listen for incoming messages
-socket.on('chat message', (data) => {
-  displayMessage(data.sender, data.text, data.sender === username ? 'sent' : 'received');
+// Handle Login Form Submission
+document.getElementById('loginForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  if (username && password) {
+    fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem('username', username);
+        localStorage.setItem('displayName', data.displayName);
+        window.location.href = '/chat'; // Redirect to chat page after successful login
+      } else {
+        alert(data.message); // Show error message if login fails
+      }
+    });
+  }
 });
-
-// Listen for chat history (when the user joins the group)
-socket.on('chat history', (messages) => {
-  chatBox.innerHTML = ''; // Clear chat box before loading history
-
-  messages.forEach((message) => {
-    displayMessage(message.sender, message.text, message.sender === username ? 'sent' : 'received');
-  });
-
-  chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom after loading history
-});
-
-// Display the message in the chat box
-function displayMessage(sender, text, type) {
-  const messageElement = document.createElement('div');
-  messageElement.classList.add('message', type);
-
-  // Create the delete button
-  const deleteButton = document.createElement('button');
-  deleteButton.classList.add('delete-btn');
-  deleteButton.textContent = 'Delete';
-  deleteButton.style.display = 'none'; // Initially hidden
-
-  // Add the delete button to the message element
-  messageElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
-  messageElement.appendChild(deleteButton);
-
-  // Handle long press to show delete button (works for both mouse and touch)
-  let pressTimer;
-  
-  const showDeleteButton = () => {
-    deleteButton.style.display = 'block'; // Show the delete button after long press
-  };
-
-  const clearPressTimer = () => {
-    clearTimeout(pressTimer); // Clear the long press timer
-  };
-
-  // Add event listeners for mouse and touch events
-  messageElement.addEventListener('mousedown', () => {
-    pressTimer = setTimeout(showDeleteButton, 1000); // Show delete button after 1 second hold
-  });
-  messageElement.addEventListener('mouseup', clearPressTimer);
-  messageElement.addEventListener('mouseleave', clearPressTimer);
-  messageElement.addEventListener('touchstart', () => {
-    pressTimer = setTimeout(showDeleteButton, 1000); // Show delete button after 1 second hold
-  });
-  messageElement.addEventListener('touchend', clearPressTimer);
-
-  // Handle delete button click
-  deleteButton.addEventListener('click', () => {
-    messageElement.remove(); // Remove the message from the DOM (for testing purposes)
-    
-    // Optionally, emit a delete event to remove the message from the server (implement as needed)
-    socket.emit('delete message', { group, message: text });
-  });
-
-  chatBox.appendChild(messageElement);
-  chatBox.scrollTop = chatBox.scrollHeight; // Ensure the chat box scrolls to the bottom after adding a new message
-}

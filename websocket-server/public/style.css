@@ -80,162 +80,6 @@ body {
   background: #0056b3;
 }
 
-/* Chat Screen */
-#chatScreen {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: #f8f9fa;
-  overflow: hidden; /* Prevent scrolling of the entire screen */
-}
-
-/* Chat Header */
-.chat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: #007bff;
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-sizing: border-box;
-}
-
-.chat-header h2 {
-  font-size: 1.2rem;
-  margin: 0;
-  text-align: left; /* Ensure proper text alignment */
-  font-weight: 600;
-  flex-grow: 1; /* Allow group name to take available space */
-}
-
-.leave-btn {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: inline-block;
-}
-
-.leave-btn:hover {
-  background: #a71d2a;
-}
-
-/* Ensuring that group name and button stay aligned properly */
-.chat-header .group-name-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
-}
-
-.chat-header .leave-btn {
-  margin-left: 10px; /* Space between group name and leave button */
-}
-
-/* Chat Box */
-.chat-box {
-  flex-grow: 1; /* Take available space */
-  padding: 10px;
-  overflow-y: auto; /* Scroll messages if necessary */
-  background: white;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 60px; /* Ensure space for the input container */
-}
-
-.chat-box .message {
-  margin-bottom: 10px;
-  max-width: 70%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  word-wrap: break-word;
-  position: relative;
-}
-
-.chat-box .sent {
-  background: #007bff;
-  color: white;
-  align-self: flex-end;
-  border-top-right-radius: 0;
-  text-align: right;
-}
-
-.chat-box .received {
-  background: #e9ecef;
-  color: #333;
-  align-self: flex-start;
-  border-top-left-radius: 0;
-  text-align: left;
-}
-
-/* Delete Button */
-.delete-btn {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px;
-  font-size: 0.8rem;
-  border-radius: 5px;
-  cursor: pointer;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: none; /* Initially hidden */
-  z-index: 15; /* Ensure it is above other elements */
-}
-
-.delete-btn.show {
-  display: block; /* Show the delete button */
-}
-
-.delete-btn:hover {
-  background: #a71d2a;
-}
-
-/* Input Container */
-.input-container {
-  display: flex;
-  padding: 10px;
-  background: white;
-  border-top: 1px solid #ddd;
-  justify-content: space-between;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  z-index: 10;
-}
-
-.input-container textarea {
-  width: 80%;
-  padding: 8px;
-  font-size: 0.9rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  resize: none;
-}
-
-.input-container .send-btn {
-  width: 15%;
-  height: 40px;
-  padding: 0;
-  font-size: 0.9rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.input-container .send-btn:hover {
-  background: #0056b3;
-}
-
 /* Mobile Optimization */
 @media (max-width: 600px) {
   /* Ensure that everything is contained and no overflow occurs */
@@ -243,41 +87,21 @@ body {
     overflow: hidden; /* Prevent scrolling */
   }
 
-  #loginScreen,
-  #chatScreen {
+  #loginScreen {
     width: 100%;
     height: 100vh;
     box-shadow: none;
   }
 
-  .chat-box {
-    flex-grow: 1;
-    margin-bottom: 60px; /* Ensure space for the input container */
+  .login-container {
+    padding: 15px;
   }
 
-  .input-container {
-    display: flex;
-    padding: 10px;
-    background: white;
-    border-top: 1px solid #ddd;
-    justify-content: space-between;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    z-index: 10;
+  .login-container .input-group input {
+    font-size: 1rem;
   }
 
-  .input-container textarea {
-    width: 80%;
-  }
-
-  .input-container .send-btn {
-    width: 15%;
-    height: 40px;
-  }
-
-  .delete-btn {
-    font-size: 0.7rem;
-    padding: 4px;
+  .login-container button {
+    font-size: 1rem;
   }
 }
