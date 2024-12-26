@@ -66,12 +66,13 @@ app.post('/login', (req, res) => {
 // Initialize Socket.io
 io.on('connection', (socket) => {
   console.log('A user connected');
-  let username; // Store username per session
 
   // Handle user joining a group
   socket.on('join group', ({ username, group }) => {
     console.log(`${username} joined ${group}`);
-    this.username = username; // Store the username for the session
+
+    // Join the user to the specified group (Socket.IO room)
+    socket.join(group);
 
     // If the group does not exist in chatHistory, initialize it
     if (!chatHistory[group]) {
@@ -97,8 +98,8 @@ io.on('connection', (socket) => {
     // Save the new message to the group's history
     chatHistory[data.group].push(newMessage);
 
-    // Emit the new message to all clients in the group
-    io.emit('chat message', newMessage);
+    // Emit the new message to all members of the group
+    io.to(data.group).emit('chat message', newMessage);
   });
 
   // Handle user disconnecting

@@ -26,75 +26,69 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-
-    // Get logged-in user details and group name from session (instead of localStorage)
+  
+    // Get logged-in user details and group name from session
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const group = localStorage.getItem('currentGroup');
-
+  
     if (currentUser && group) {
       document.getElementById('groupName').textContent = group; // Display the group name
       document.getElementById('userName').textContent = currentUser.displayName || currentUser.username; // Display the user's name
-
+  
       // Join the group once the user reaches the chat page
       socket.emit('join group', { username: currentUser.username, group });
-
+  
       // Listen for incoming messages and display them in the chat box
       socket.on('chat message', function (msg) {
         if (msg && msg.sender && msg.text) {
-          appendMessage(msg.sender, msg.text);
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('message');
+          messageElement.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
+          document.getElementById('chatBox').appendChild(messageElement);
+  
+          // Scroll to the bottom of the chat box to see the new message
+          document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
         }
       });
-
+  
       // Load chat history when joining the group
       socket.on('chat history', function (history) {
         const chatBox = document.getElementById('chatBox');
         chatBox.innerHTML = ''; // Clear existing messages
         
         history.forEach(msg => {
-          if (msg && msg.sender && msg.text) {
-            appendMessage(msg.sender, msg.text);
-          }
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('message');
+          messageElement.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
+          chatBox.appendChild(messageElement);
         });
-
+  
         // Scroll to the bottom of the chat box
         chatBox.scrollTop = chatBox.scrollHeight;
       });
     } else {
-      // Redirect to login or join-group page if user details are missing
       alert('Please log in and join a group first!');
       window.location.href = 'login.html'; // Adjust the redirect path as needed
     }
-
-    function appendMessage(sender, text) {
-      const chatBox = document.getElementById('chatBox');
-      const messageElement = document.createElement('div');
-      messageElement.classList.add('message');
-      messageElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
-      chatBox.appendChild(messageElement);
-
-      // Scroll to the bottom of the chat box
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
+  
     function leaveGroup() {
       localStorage.removeItem('currentGroup');
-      window.location.href = 'join-group.html'; // Redirect to a page where the user can select a group
+      window.location.href = 'join-group.html';
     }
-
+  
     function sendMessage() {
       const message = document.getElementById('messageInput').value.trim();
-
+  
       if (message) {
-        // Emit the chat message to the server
         socket.emit('chat message', {
           group,
           username: currentUser.username,
           text: message,
         });
-
+  
         document.getElementById('messageInput').value = ''; // Clear input field
       }
     }
-  </script>
+  </script>  
 </body>
 </html>
