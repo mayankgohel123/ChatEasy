@@ -15,7 +15,7 @@
       <button class="leave-btn" onclick="leaveGroup()">Leave</button>
     </div>
     
-    <div id="chatBox" class="chat-box"></div>
+    <div id="chatBox" class="chat-box"></div> <!-- This is where messages will appear -->
     
     <div class="input-container">
       <textarea id="messageInput" placeholder="Type your message..." required></textarea>
@@ -27,126 +27,73 @@
   <script>
     const socket = io();
 
-    // Get username and group from localStorage
-    const username = localStorage.getItem('username');
+    // Get logged-in user details and group name from session (instead of localStorage)
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const group = localStorage.getItem('currentGroup');
 
-    // Check if user is logged in and a group is joined
-    if (username && group) {
+    if (currentUser && group) {
       document.getElementById('groupName').textContent = group; // Display the group name
-      document.getElementById('userName').textContent = username; // Display the username
+      document.getElementById('userName').textContent = currentUser.displayName || currentUser.username; // Display the user's name
 
       // Join the group once the user reaches the chat page
-      socket.emit('join group', { username, group });
+      socket.emit('join group', { username: currentUser.username, group });
 
-      // Listen for the chat history and display it
-      socket.on('chat history', (messages) => {
-        const chatBox = document.getElementById('chatBox');
-        chatBox.innerHTML = ''; // Clear chat box before loading history
-        
-        messages.forEach(message => {
-          const messageElement = document.createElement('div');
-          messageElement.classList.add('message', message.sender === username ? 'sent' : 'received');
-          messageElement.textContent = `${message.sender}: ${message.text}`;
-
-          // Add a unique messageId (if not present) to reference for deletion
-          messageElement.setAttribute('data-message-id', message.id); // Assuming 'id' is unique
-
-          // Create and append delete button
-          const deleteButton = document.createElement('button');
-          deleteButton.classList.add('delete-btn');
-          deleteButton.textContent = 'Delete';
-          messageElement.appendChild(deleteButton);
-
-          // Show delete button on long press
-          let pressTimer;
-          messageElement.addEventListener('mousedown', function () {
-            pressTimer = setTimeout(() => {
-              deleteButton.style.display = 'block'; // Show delete button
-            }, 1000); // Trigger after 1 second
-          });
-
-          messageElement.addEventListener('mouseup', function () {
-            clearTimeout(pressTimer); // Cancel if pressed for less than 1 second
-          });
-
-          // Handle message deletion
-          deleteButton.addEventListener('click', function () {
-            const messageId = messageElement.getAttribute('data-message-id');
-            socket.emit('delete message', { group, messageId }); // Use messageId for deletion
-
-            // Remove message from the chat box
-            messageElement.remove();
-          });
-
-          chatBox.appendChild(messageElement);
-        });
-      });
-
-      // Listen for new chat messages
-      socket.on('chat message', (data) => {
-        console.log('Received message:', data); // Debugging log
-        const chatBox = document.getElementById('chatBox');
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', data.sender === username ? 'sent' : 'received');
-        messageElement.textContent = `${data.sender}: ${data.text}`;
-
-        // Add a unique messageId (if not present) to reference for deletion
-        messageElement.setAttribute('data-message-id', data.id); // Assuming 'id' is unique
-
-        // Create and append delete button
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('delete-btn');
-        deleteButton.textContent = 'Delete';
-        messageElement.appendChild(deleteButton);
-
-        // Show delete button on long press
-        let pressTimer;
-        messageElement.addEventListener('mousedown', function () {
-          pressTimer = setTimeout(() => {
-            deleteButton.style.display = 'block'; // Show delete button
-          }, 1000); // Trigger after 1 second
-        });
-
-        messageElement.addEventListener('mouseup', function () {
-          clearTimeout(pressTimer); // Cancel if pressed for less than 1 second
-        });
-
-        // Handle message deletion
-        deleteButton.addEventListener('click', function () {
-          const messageId = messageElement.getAttribute('data-message-id');
-          socket.emit('delete message', { group, messageId }); // Use messageId for deletion
-
-          // Remove message from the chat box
-          messageElement.remove();
-        });
-
-        chatBox.appendChild(messageElement);
-      });
-
-      // Handle sending messages
-      function sendMessage() {
-        const message = document.getElementById('messageInput').value;
-
-        if (message) {
-          // Emit chat message to the server
-          socket.emit('chat message', { group, username, message });
-
-          // Clear the input field after sending the message
-          document.getElementById('messageInput').value = '';
+      // Listen for incoming messages and display them in the chat box
+      socket.on('chat message', function (msg) {
+        if (msg && msg.sender && msg.text) {
+          appendMessage(msg.sender, msg.text);
         }
-      }
+      });
 
-      // Leave the group and redirect to home page
-      function leaveGroup() {
-        localStorage.removeItem('username');
-        localStorage.removeItem('currentGroup');
-        window.location.href = '/'; // Redirect to the home page
-      }
+      // Load chat history when joining the group
+      socket.on('chat history', function (history) {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = ''; // Clear existing messages
+        
+        history.forEach(msg => {
+          if (msg && msg.sender && msg.text) {
+            appendMessage(msg.sender, msg.text);
+          }
+        });
+
+        // Scroll to the bottom of the chat box
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
     } else {
-      // Redirect to join group page if user is not in a group
-      alert('Please join a group first!');
-      window.location.href = 'join-group.html';
+      // Redirect to login or join-group page if user details are missing
+      alert('Please log in and join a group first!');
+      window.location.href = 'login.html'; // Adjust the redirect path as needed
+    }
+
+    function appendMessage(sender, text) {
+      const chatBox = document.getElementById('chatBox');
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatBox.appendChild(messageElement);
+
+      // Scroll to the bottom of the chat box
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function leaveGroup() {
+      localStorage.removeItem('currentGroup');
+      window.location.href = 'join-group.html'; // Redirect to a page where the user can select a group
+    }
+
+    function sendMessage() {
+      const message = document.getElementById('messageInput').value.trim();
+
+      if (message) {
+        // Emit the chat message to the server
+        socket.emit('chat message', {
+          group,
+          username: currentUser.username,
+          text: message,
+        });
+
+        document.getElementById('messageInput').value = ''; // Clear input field
+      }
     }
   </script>
 </body>

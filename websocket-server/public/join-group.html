@@ -5,48 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Join a Group</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .error {
-      color: red;
-      font-size: 0.9em;
-      margin-top: 5px;
-    }
-
-    /* Additional Styling for Visibility */
-    .input-group {
-      margin-bottom: 20px;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
 </head>
 <body>
-  <!-- Join Group Screen -->
   <div id="joinGroupScreen">
     <div class="login-container">
       <h1>Join a Group</h1>
       <form id="joinGroupForm">
+        <div class="input-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" readonly>
+        </div>
         <div class="input-group">
           <label for="group">Group Name:</label>
           <input type="text" id="group" name="group" placeholder="Enter Group Name" required>
@@ -58,28 +26,34 @@
   </div>
 
   <script>
-    // Handle group join form submission
+    // Check if username is stored in LocalStorage
+    const username = localStorage.getItem('currentUser'); // Assume 'currentUser' is set during login or sign-up
+
+    if (!username) {
+      // Redirect to login if no user is logged in
+      alert('Please sign up or log in first!');
+      window.location.href = 'login.html';
+    } else {
+      // Display the logged-in user's username
+      document.getElementById('username').value = username;
+    }
+
+    // Handle form submission
     document.getElementById('joinGroupForm').addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const group = document.getElementById('group').value;
-      const username = localStorage.getItem('currentUser'); // Get the username of the logged-in user
+      const group = document.getElementById('group').value.trim();
 
-      if (!username) {
-        alert('Please log in first!');
-        window.location.href = 'login.html'; // Redirect to login page if no username found
+      if (!group) {
+        alert('Please enter a group name.');
         return;
       }
 
-      if (group) {
-        // Save the group name in localStorage
-        localStorage.setItem('currentGroup', group);
+      // Save the group in LocalStorage
+      localStorage.setItem('currentGroup', group);
 
-        // Redirect to chat page after joining group
-        window.location.href = 'chat.html'; // Redirect to chat page after joining group
-      } else {
-        alert('Please enter a group name.');
-      }
+      // Redirect to chat.html
+      window.location.href = 'chat.html';
     });
   </script>
 </body>

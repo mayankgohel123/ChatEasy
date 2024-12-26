@@ -1,14 +1,18 @@
 {
   "name": "chateasy",
   "version": "1.0.0",
-  "main": "websocket-server/server.js",  
+  "main": "websocket-server/server.js",
   "scripts": {
-    "start": "node websocket-server/server.js"  
+    "start": "node websocket-server/server.js"
   },
   "dependencies": {
-    "express": "^4.21.2",  
-    "socket.io": "^4.8.1",
-    "cors": "^2.8.5"
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

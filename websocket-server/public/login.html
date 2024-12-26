@@ -40,8 +40,8 @@
     document.getElementById('loginForm').addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
       const passwordError = document.getElementById('passwordError'); // Error message element
 
       // Validate the inputs
@@ -52,6 +52,10 @@
         if (user.password === password) {
           // Clear error message if successful
           passwordError.style.display = 'none';
+
+          // Store the logged-in user's name and username in localStorage
+          localStorage.setItem('currentUser', JSON.stringify({ name: user.name, username: user.username }));
+
           alert(`Welcome ${user.name}!`);
           // Redirect to the group join page after login
           window.location.href = 'join-group.html'; // Redirect to join group page

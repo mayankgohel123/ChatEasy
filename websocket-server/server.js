@@ -2,16 +2,24 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
+const session = require('express-session');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Mock chat history (replace with actual data from a database in real-world scenarios)
-let chatHistory = [];
-let users = []; // Store users as an array (this should be a database in a real app)
+// Store chat history in memory (You can replace this with a database in production)
+let chatHistory = {}; // Stores chat history for each group
+let users = []; // In-memory user store (use a real database for production)
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Set up session middleware
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+}));
 
 // Serve the sign-up page
 app.get('/signup', (req, res) => {
@@ -25,7 +33,7 @@ app.get('/login', (req, res) => {
 
 // Serve the chat page (requires login)
 app.get('/chat', (req, res) => {
-  if (!req.isAuthenticated()) {
+  if (!req.session.user) {
     return res.redirect('/login'); // Redirect if user is not logged in
   }
   res.sendFile(path.join(__dirname, 'public', 'chat.html'));
@@ -49,33 +57,51 @@ app.post('/login', (req, res) => {
   if (!user) {
     return res.json({ success: false, message: 'Invalid username or password' });
   }
+
+  // Set the session user data
+  req.session.user = { username, displayName: user.displayName };
   res.json({ success: true, displayName: user.displayName });
 });
 
 // Initialize Socket.io
 io.on('connection', (socket) => {
   console.log('A user connected');
-  let username; // Declare variable to store username per session
+  let username; // Store username per session
 
+  // Handle user joining a group
   socket.on('join group', ({ username, group }) => {
-    this.username = username; // Set the username when joining a group
     console.log(`${username} joined ${group}`);
-    socket.emit('chat history', chatHistory); // Send chat history when user joins the group
+    this.username = username; // Store the username for the session
+
+    // If the group does not exist in chatHistory, initialize it
+    if (!chatHistory[group]) {
+      chatHistory[group] = [];
+    }
+
+    // Send the chat history to the user
+    socket.emit('chat history', chatHistory[group]);
   });
 
-  // Handle new messages
+  // Handle sending a message
   socket.on('chat message', (data) => {
     console.log('Received message:', data);
-    chatHistory.push({ sender: data.username, text: data.message });
-    io.emit('chat message', { sender: data.username, text: data.message });
+
+    // Ensure the group exists in chatHistory
+    if (!chatHistory[data.group]) {
+      chatHistory[data.group] = [];
+    }
+
+    // Create the new message object
+    const newMessage = { sender: data.username, text: data.text };
+
+    // Save the new message to the group's history
+    chatHistory[data.group].push(newMessage);
+
+    // Emit the new message to all clients in the group
+    io.emit('chat message', newMessage);
   });
 
-  // Handle message deletion (if needed)
-  socket.on('delete message', (data) => {
-    chatHistory = chatHistory.filter(msg => msg.id !== data.messageId);
-    io.emit('chat history', chatHistory); // Update all clients with the new history
-  });
-
+  // Handle user disconnecting
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
